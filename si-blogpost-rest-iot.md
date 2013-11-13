@@ -53,6 +53,97 @@ Ressourcen und REST-Schnittstellen modellieren.
 Dies sind nur einige der Gründe warum REST für die eingebetteten System, die
 wir bei Bosch bauen, attraktiv ist.
 
+## Ein Beispiel
+
+Hier ein (vereinfachtes) Beispiel aus der Heizungstechnik. Es illustriert, wie
+eine REST-Schnittstelle mit einer JSON-Repräsentation verwendet werden kann um
+eine Heizung ferzusteuern.
+
+Frage die vorhandenen Räume ab:
+
+	GET http://mein.haus.de/heizung/raeume 
+	
+liefert Status 200 (OK) 
+	
+	[ 
+        {
+            'id':'wohnzimmer', 
+            'uri': 'http://mein.haus.de/heizung/raeume/wohnzimmer'
+		}, 
+		{ 
+            'id':'bad', 
+            'uri': 'http://mein.haus.de/heizung/raeume/bad' 
+        } 
+	]
+
+Es werden nicht nur die Namen der Räume, sondern auch die URI's der Ressourcen,
+die die Räume representieren, mitgeliefert. 
+
+Frage die aktuelle Raumtemperatur im Wohnzimmer ab:
+
+    GET http://mein.haus.de/heizung/raeume/wohnzimmer/temp 
+	
+liefert Status Code 200 (OK)
+
+    { 
+		'temp':'20.2', 
+		'unit':'celsius' 
+	}
+
+Setze die Solltemperatur im Wohnzimmer auf 21 °C:
+
+PUT http://mein.haus.de/heizung/raeume/wohnzimmer/sollTemp
+
+mit Anhang
+
+    { 
+		'temp':'21.0' 
+	}
+	
+liefert Status Code 204 (NO CONTENT)
+
+Schalte die Heizung während meines Kurzurlaubs nächste Woche Wochenende
+ausnahmsweise auf Frostbetrieb:
+
+    POST http://mein.haus.de/heizung/heizplan/ausnahmen
+
+mit Anhang		
+
+	{ 
+		'start':'2012-10-19T18:00', 
+		'end':'2012-10-21T21:00',
+		'modus': 'frost' 
+	} 
+	
+liefert Status Code 201 (CREATED) 
+	
+	http://mein.haus.de/heizung/heizplan/ausnahmen/12
+
+Oder noch besser: benutze meinen Online-Kalender, um bei Urlaub automatisch die
+Heizung in den Frostbetrieb, und bei einer Party automatisch eine Stunde vorher
+in den Heizmodus zu schalten:
+
+PUT http://mein.haus.de/heizung/heizplan/calendar-control 
+
+mit Anhang
+
+	{
+		'cal':'http://www.ocal.de', 
+		'user':'haeusle@bauer.de',
+		'pwd':'schaffeschaffe', 
+		'vcal-mappings': [ 
+			{
+				'name-equals':'Urlaub',
+				'mode':'frost'
+			}, 
+			{
+				'name-contains':'Party',
+				'mode':'high',
+				'in-advance','60'
+			}
+		] 
+	}
+
 ## Erfahrung bei Bosch
 
 Ich habe in meiner Arbeit für die Bosch-interne FusionX Community mehrere
